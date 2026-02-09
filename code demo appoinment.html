@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử đặt lịch khám</title>
+    <style>
+        :root {
+            --primary-color: #223a66;
+            --secondary-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .appointment-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .appointment-table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .appointment-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .appointment-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .appointment-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .appointment-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: var(--secondary-color);
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Thay thế phần CSS cũ của action buttons bằng đoạn này */
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 90px;
+        }
+
+        .action-btn i {
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0.9;
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Màu sắc mới - phối màu tinh tế hơn */
+        .action-btn.detail {
+            background-color: #4a6fa5;
+            /* Màu xanh dịu */
+            border-color: #3a5a8f;
+        }
+
+        .action-btn.review {
+            background-color: #6c757d;
+            /* Màu xám trung tính */
+            border-color: #5a6268;
+        }
+
+        .action-btn.cancel {
+            background-color: #dc3545;
+            /* Giữ màu đỏ nhưng tối hơn */
+            border-color: #c82333;
+        }
+
+        .action-btn.close {
+            background-color: #5a6268;
+            /* Xám đậm */
+            border-color: #484e53;
+        }
+
+        .action-btn.confirm {
+            background-color: #28a745;
+            /* Giữ màu xanh lá nhưng tối hơn */
+            border-color: #218838;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        /* Hiệu ứng khi hover - tinh tế hơn */
+        .action-btn.detail:hover {
+            background-color: #3a5a8f;
+        }
+
+        .action-btn.review:hover {
+            background-color: #5a6268;
+        }
+
+        .action-btn.cancel:hover {
+            background-color: #c82333;
+        }
+
+        .action-btn.close:hover {
+            background-color: #484e53;
+        }
+
+        .action-btn.confirm:hover {
+            background-color: #218838;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 5px;
+        }
+
+        .page-item {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .page-item.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .page-item:hover:not(.active) {
+            background-color: #f1f1f1;
+        }
+
+        .page-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .patient-message {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .no-records {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .info-value {
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .cancel-reason {
+            font-style: italic;
+            color: #dc3545;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .appointment-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .filter-section {
+                flex-wrap: wrap;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Lịch sử đặt lịch khám</h1>
+        </div>
+
+        <div class="filter-section">
+            <button class="filter-btn active" data-filter="all">Tất cả</button>
+            <button class="filter-btn" data-filter="approved">Đã xác nhận</button>
+            <button class="filter-btn" data-filter="pending">Chờ xác nhận</button>
+            <button class="filter-btn" data-filter="cancelled">Hủy lịch</button>
+        </div>
+
+        <table class="appointment-table">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Dịch vụ</th>
+                    <th>Bác sĩ</th>
+                    <th>Ngày hẹn</th>
+                    <th>Giờ hẹn</th>
+                    <th>Bệnh nhân</th>
+                    <th>Điện thoại</th>
+                    <th>Lời nhắn</th>
+                    <th>Trạng thái</th>
+                    <th>Tùy chọn</th>
+                </tr>
+            </thead>
+            <tbody id="appointment-body">
+                <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+            </tbody>
+        </table>
+
+        <div class="pagination" id="pagination">
+            <!-- Phân trang sẽ được thêm bằng JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modal xem lý do hủy lịch -->
+    <div id="cancelReasonModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Thông báo hủy lịch</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-item">
+                    <div class="info-label">Kính gửi quý khách:</div>
+                    <div class="cancel-reason" id="cancelReasonText">
+                        Chào bạn <span id="patientName"></span>, chúng tôi rất tiếc phải thông báo rằng lịch khám của
+                        bạn ngày <span id="appointmentDate"></span>
+                        đã bị hủy do bác sĩ <span id="doctorName"></span> không thể thực hiện khám vào thời gian này vì
+                        lý do đột xuất.
+                        Chúng tôi thành thật xin lỗi vì sự bất tiện này. Vui lòng đặt lịch khám mới hoặc liên hệ hotline
+                        1800-xxxx để được hỗ trợ.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn close">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal chi tiết lịch hẹn -->
+    <div id="appointmentDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Chi tiết lịch hẹn</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="appointmentDetailContent">
+                <!-- Nội dung sẽ được thêm bằng JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn close">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal xác nhận hủy lịch -->
+    <div id="confirmCancelModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Xác nhận hủy lịch</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmCancelMessage">Bạn có chắc chắn muốn hủy lịch khám này?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn close">Quay lại</button>
+                <button class="action-btn confirm">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal thông báo hủy thành công -->
+    <div id="cancelSuccessModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Thông báo</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Đã hủy lịch khám thành công!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn close">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dữ liệu mẫu - trong thực tế bạn sẽ lấy từ API
+        const appointments = [
+            {
+                id: 1,
+                service: "Dịch vụ tim mạch",
+                doctor: "BS. Nguyễn Văn A",
+                doctorPhone: "0912 345 678",
+                doctorRoom: "Phòng 201 - Tầng 2",
+                date: "01/04/2025",
+                time: "08:00",
+                patient: "Nguyễn Thị B",
+                phone: "0123 456 789",
+                message: "Đau bụng, khó thở",
+                status: "cancelled",
+                cancelReason: "Bác sĩ có lịch họp đột xuất với bệnh viện tỉnh"
+            },
+            {
+                id: 2,
+                service: "Dịch vụ phẫu thuật",
+                doctor: "BS. Trần Thị C",
+                doctorPhone: "0987 654 321",
+                doctorRoom: "Phòng 105 - Tầng 1",
+                date: "01/04/2025",
+                time: "08:30",
+                patient: "Phạm Văn D",
+                phone: "0987 654 321",
+                message: "Hoa mắt, chóng mặt, buồn nôn",
+                status: "cancelled",
+                cancelReason: "Máy móc thiết bị đang trong quá trình bảo trì định kỳ"
+            },
+            {
+                id: 3,
+                service: "Dịch vụ phụ khoa",
+                doctor: "BS. Lê Văn E",
+                doctorPhone: "0369 258 147",
+                doctorRoom: "Phòng 302 - Tầng 3",
+                date: "01/04/2025",
+                time: "09:00",
+                patient: "Hoàng Thị F",
+                phone: "0369 258 147",
+                message: "Đau bụng dưới, khó chịu",
+                status: "approved"
+            },
+            {
+                id: 4,
+                service: "Dịch vụ thần kinh",
+                doctor: "BS. Phạm Văn G",
+                doctorPhone: "0587 412 369",
+                doctorRoom: "Phòng 203 - Tầng 2",
+                date: "01/04/2025",
+                time: "09:30",
+                patient: "Vũ Thị H",
+                phone: "0587 412 369",
+                message: "Đau đầu, mất ngủ kéo dài",
+                status: "pending"
+            },
+            {
+                id: 5,
+                service: "Dịch vụ nhi khoa",
+                doctor: "BS. Đỗ Thị K",
+                doctorPhone: "0369 874 125",
+                doctorRoom: "Phòng 101 - Tầng 1",
+                date: "02/04/2025",
+                time: "10:00",
+                patient: "Lê Văn M",
+                phone: "0369 874 125",
+                message: "Sốt cao, ho nhiều",
+                status: "approved"
+            },
+            {
+                id: 6,
+                service: "Dịch vụ da liễu",
+                doctor: "BS. Nguyễn Văn N",
+                doctorPhone: "0985 632 147",
+                doctorRoom: "Phòng 303 - Tầng 3",
+                date: "02/04/2025",
+                time: "10:30",
+                patient: "Trần Thị P",
+                phone: "0985 632 147",
+                message: "Ngứa da, nổi mẩn đỏ",
+                status: "pending"
+            },
+            {
+                id: 7,
+                service: "Dịch vụ răng hàm mặt",
+                doctor: "BS. Lý Văn Q",
+                doctorPhone: "0369 852 147",
+                doctorRoom: "Phòng 202 - Tầng 2",
+                date: "02/04/2025",
+                time: "11:00",
+                patient: "Phùng Thị R",
+                phone: "0369 852 147",
+                message: "Đau răng, sưng lợi",
+                status: "approved"
+            },
+            {
+                id: 8,
+                service: "Dịch vụ tai mũi họng",
+                doctor: "BS. Vũ Thị S",
+                doctorPhone: "0963 258 741",
+                doctorRoom: "Phòng 103 - Tầng 1",
+                date: "03/04/2025",
+                time: "08:00",
+                patient: "Đỗ Văn T",
+                phone: "0963 258 741",
+                message: "Đau họng, khàn tiếng",
+                status: "cancelled",
+                cancelReason: "Phòng khám đang trong quá trình khử khuẩn sau ca nhiễm khuẩn"
+            },
+            {
+                id: 9,
+                service: "Dịch vụ xương khớp",
+                doctor: "BS. Hoàng Văn U",
+                doctorPhone: "0369 741 852",
+                doctorRoom: "Phòng 301 - Tầng 3",
+                date: "03/04/2025",
+                time: "08:30",
+                patient: "Lý Thị V",
+                phone: "0369 741 852",
+                message: "Đau lưng, tê bì chân tay",
+                status: "pending"
+            },
+            {
+                id: 10,
+                service: "Dịch vụ tiêu hóa",
+                doctor: "BS. Trịnh Văn X",
+                doctorPhone: "0987 412 365",
+                doctorRoom: "Phòng 102 - Tầng 1",
+                date: "03/04/2025",
+                time: "09:00",
+                patient: "Ngô Thị Y",
+                phone: "0987 412 365",
+                message: "Đau bụng, rối loạn tiêu hóa",
+                status: "approved"
+            },
+            {
+                id: 11,
+                service: "Dịch vụ mắt",
+                doctor: "BS. Phan Văn Z",
+                doctorPhone: "0369 852 147",
+                doctorRoom: "Phòng 204 - Tầng 2",
+                date: "04/04/2025",
+                time: "09:30",
+                patient: "Đinh Thị AA",
+                phone: "0369 852 147",
+                message: "Mờ mắt, nhức mỏi mắt",
+                status: "pending"
+            },
+            {
+                id: 12,
+                service: "Dịch vụ vật lý trị liệu",
+                doctor: "BS. Mai Thị BB",
+                doctorPhone: "0987 654 321",
+                doctorRoom: "Phòng 304 - Tầng 3",
+                date: "04/04/2025",
+                time: "10:00",
+                patient: "Hồ Văn CC",
+                phone: "0987 654 321",
+                message: "Phục hồi chức năng sau chấn thương",
+                status: "approved"
+            }
+        ];
+
+        // Biến toàn cục
+        let currentPage = 1;
+        let currentFilter = "all";
+        const recordsPerPage = 10;
+        let currentAppointmentId = null;
+
+        // DOM Elements
+        const cancelReasonModal = document.getElementById('cancelReasonModal');
+        const appointmentDetailModal = document.getElementById('appointmentDetailModal');
+        const confirmCancelModal = document.getElementById('confirmCancelModal');
+        const cancelSuccessModal = document.getElementById('cancelSuccessModal');
+        const cancelReasonText = document.getElementById('cancelReasonText');
+        const appointmentDetailContent = document.getElementById('appointmentDetailContent');
+        const confirmCancelMessage = document.getElementById('confirmCancelMessage');
+        const patientName = document.getElementById('patientName');
+        const appointmentDate = document.getElementById('appointmentDate');
+        const doctorName = document.getElementById('doctorName');
+
+        // Hàm hiển thị dữ liệu
+        function displayAppointments() {
+            const tbody = document.getElementById('appointment-body');
+            tbody.innerHTML = '';
+
+            // Lọc dữ liệu theo trạng thái
+            let filteredData = appointments;
+            if (currentFilter !== 'all') {
+                filteredData = appointments.filter(app => app.status === currentFilter);
+            }
+
+            // Tính toán dữ liệu cho trang hiện tại
+            const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+            const startIndex = (currentPage - 1) * recordsPerPage;
+            const endIndex = Math.min(startIndex + recordsPerPage, filteredData.length);
+            const paginatedData = filteredData.slice(startIndex, endIndex);
+
+            // Hiển thị thông báo nếu không có dữ liệu
+            if (paginatedData.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="10" class="no-records">Không có dữ liệu đặt lịch</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+
+            // Hiển thị dữ liệu
+            paginatedData.forEach((app, index) => {
+                const tr = document.createElement('tr');
+                const stt = startIndex + index + 1;
+
+                // Xác định trạng thái và nút hành động
+                let statusClass, statusText, actionButtons;
+
+                if (app.status === 'approved') {
+                    statusClass = 'status-approved';
+                    statusText = 'Đã xác nhận';
+                    actionButtons = `
+                        <div class="action-buttons">
+                            <button class="action-btn cancel" data-id="${app.id}">
+                                <i class="fas fa-times-circle"></i> Hủy lịch
+                            </button>
+                            <button class="action-btn detail" data-id="${app.id}">
+                                <i class="fas fa-info-circle"></i> Chi tiết
+                            </button>
+                        </div>
+                    `;
+                } else if (app.status === 'pending') {
+                    statusClass = 'status-pending';
+                    statusText = 'Chờ xác nhận';
+                    actionButtons = `
+                        <div class="action-buttons">
+                            <button class="action-btn cancel" data-id="${app.id}">
+                                <i class="fas fa-times-circle"></i> Hủy lịch
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    statusClass = 'status-cancelled';
+                    statusText = 'Hủy lịch';
+                    actionButtons = `
+                        <div class="action-buttons">
+                            <button class="action-btn review" data-id="${app.id}">
+                                <i class="fas fa-eye"></i> Xem lại
+                            </button>
+                        </div>
+                    `;
+                }
+
+                tr.innerHTML = `
+                    <td>${stt}</td>
+                    <td>${app.service}</td>
+                    <td>${app.doctor}</td>
+                    <td>${app.date}</td>
+                    <td>${app.time}</td>
+                    <td>${app.patient}</td>
+                    <td>${app.phone}</td>
+                    <td class="patient-message" title="${app.message}">${app.message}</td>
+                    <td><span class="status ${statusClass}">${statusText}</span></td>
+                    <td>${actionButtons}</td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+
+            // Hiển thị phân trang
+            displayPagination(filteredData.length);
+
+            // Thêm sự kiện cho các nút
+            addEventListeners();
+        }
+
+        // Hàm hiển thị phân trang
+        function displayPagination(totalRecords) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            const totalPages = Math.ceil(totalRecords / recordsPerPage);
+
+            if (totalPages <= 1) return;
+
+            // Nút Previous
+            const prevLi = document.createElement('div');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevLi.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayAppointments();
+                }
+            });
+            pagination.appendChild(prevLi);
+
+            // Các nút trang
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            if (startPage > 1) {
+                const firstLi = document.createElement('div');
+                firstLi.className = `page-item ${currentPage === 1 ? 'active' : ''}`;
+                firstLi.textContent = '1';
+                firstLi.addEventListener('click', () => {
+                    currentPage = 1;
+                    displayAppointments();
+                });
+                pagination.appendChild(firstLi);
+
+                if (startPage > 2) {
+                    const dotsLi = document.createElement('div');
+                    dotsLi.className = 'page-item disabled';
+                    dotsLi.textContent = '...';
+                    pagination.appendChild(dotsLi);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageLi = document.createElement('div');
+                pageLi.className = `page-item ${currentPage === i ? 'active' : ''}`;
+                pageLi.textContent = i;
+                pageLi.addEventListener('click', () => {
+                    currentPage = i;
+                    displayAppointments();
+                });
+                pagination.appendChild(pageLi);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dotsLi = document.createElement('div');
+                    dotsLi.className = 'page-item disabled';
+                    dotsLi.textContent = '...';
+                    pagination.appendChild(dotsLi);
+                }
+
+                const lastLi = document.createElement('div');
+                lastLi.className = `page-item ${currentPage === totalPages ? 'active' : ''}`;
+                lastLi.textContent = totalPages;
+                lastLi.addEventListener('click', () => {
+                    currentPage = totalPages;
+                    displayAppointments();
+                });
+                pagination.appendChild(lastLi);
+            }
+
+            // Nút Next
+            const nextLi = document.createElement('div');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextLi.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayAppointments();
+                }
+            });
+            pagination.appendChild(nextLi);
+        }
+
+        // Hàm thêm sự kiện cho các nút
+        function addEventListeners() {
+            // Nút xem lại lý do hủy lịch
+            document.querySelectorAll('.action-btn.review').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const appointmentId = parseInt(this.dataset.id);
+                    showCancelReason(appointmentId);
+                });
+            });
+
+            // Nút xem chi tiết lịch hẹn
+            document.querySelectorAll('.action-btn.detail').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const appointmentId = parseInt(this.dataset.id);
+                    showAppointmentDetail(appointmentId);
+                });
+            });
+
+            // Nút hủy lịch
+            document.querySelectorAll('.action-btn.cancel').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const appointmentId = parseInt(this.dataset.id);
+                    const appointment = appointments.find(a => a.id === appointmentId);
+
+                    if (appointment.status === 'approved') {
+                        confirmCancelMessage.innerHTML = `
+                            Bạn có chắc chắn muốn hủy lịch khám đã được xác nhận?<br><br>
+                            <small>Lưu ý: Hủy lịch khám đã xác nhận có thể ảnh hưởng đến lịch trình của bác sĩ.</small>
+                        `;
+                    } else {
+                        confirmCancelMessage.textContent = 'Bạn có chắc chắn muốn hủy lịch khám này?';
+                    }
+
+                    currentAppointmentId = appointmentId;
+                    showModal(confirmCancelModal);
+                });
+            });
+
+            // Nút đóng modal
+            document.querySelectorAll('.modal-close, .action-btn.close').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    closeAllModals();
+                });
+            });
+
+            // Nút xác nhận hủy lịch
+            document.querySelector('.action-btn.confirm').addEventListener('click', function () {
+                // Trong thực tế, bạn sẽ gửi yêu cầu hủy lịch đến server ở đây
+                // Sau đó cập nhật lại giao diện
+
+                // Demo: Cập nhật trạng thái ngay lập tức
+                const appointment = appointments.find(a => a.id === currentAppointmentId);
+                if (appointment) {
+                    appointment.status = 'cancelled';
+                    appointment.cancelReason = 'Khách hàng tự hủy lịch';
+                }
+
+                closeAllModals();
+                showModal(cancelSuccessModal);
+
+                // Hiển thị lại dữ liệu
+                displayAppointments();
+            });
+        }
+
+        // Hàm hiển thị lý do hủy lịch
+        function showCancelReason(appointmentId) {
+            const appointment = appointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                patientName.textContent = appointment.patient;
+                appointmentDate.textContent = appointment.date;
+                doctorName.textContent = appointment.doctor;
+                cancelReasonText.innerHTML = `
+                    Chào bạn <strong>${appointment.patient}</strong>, chúng tôi rất tiếc phải thông báo rằng lịch khám của bạn ngày <strong>${appointment.date}</strong> 
+        
+                    Vui lòng đặt lịch khám mới hoặc liên hệ hotline 1800-xxxx để được hỗ trợ.
+                `;
+                showModal(cancelReasonModal);
+            }
+        }
+
+        // Hàm hiển thị chi tiết lịch hẹn
+        function showAppointmentDetail(appointmentId) {
+            const appointment = appointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                appointmentDetailContent.innerHTML = `
+                    <div class="info-item">
+                        <div class="info-label">Dịch vụ khám</div>
+                        <div class="info-value">${appointment.service}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Bác sĩ phụ trách</div>
+                        <div class="info-value">${appointment.doctor}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Số điện thoại bác sĩ</div>
+                        <div class="info-value">${appointment.doctorPhone}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Phòng khám</div>
+                        <div class="info-value">${appointment.doctorRoom}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Ngày hẹn</div>
+                        <div class="info-value">${appointment.date}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Giờ hẹn</div>
+                        <div class="info-value">${appointment.time}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Lời nhắn của bạn</div>
+                        <div class="info-value">${appointment.message}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Hướng dẫn</div>
+                        <div class="info-value">
+                            Vui lòng đến trước 15 phút để làm thủ tục. Mang theo CMND/CCCD và thẻ BHYT (nếu có).
+                        </div>
+                    </div>
+                `;
+                showModal(appointmentDetailModal);
+            }
+        }
+
+        // Hàm hiển thị modal
+        function showModal(modal) {
+            closeAllModals();
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Hàm đóng tất cả modal
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+            document.body.style.overflow = 'auto';
+        }
+
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', function () {
+            // Thêm sự kiện cho các nút lọc
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    currentPage = 1; // Reset về trang 1 khi thay đổi bộ lọc
+                    displayAppointments();
+                });
+            });
+
+            // Hiển thị dữ liệu ban đầu
+            displayAppointments();
+
+            // Đóng modal khi click bên ngoài
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        closeAllModals();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Portal - Đăng nhập & Đăng ký</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: url('https://plus.unsplash.com/premium_photo-1661328213003-c77d9ba01131?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(34, 58, 102, 0.8), rgba(225, 36, 84, 0.6));
+            background: linear-gradient(135deg, rgba(114, 148, 209, 0.8), rgba(172, 96, 115, 0.6));
+
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 480px;
+            margin: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-container {
+            display: none;
+            transition: all 0.5s ease;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header .logo {
+            width: 60px;
+            height: 60px;
+            background: #223a66;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 auto 15px;
+        }
+
+        .header h2 {
+            color: #223a66;
+            font-size: 28px;
+            font-weight: 500;
+        }
+
+        .header p {
+            color: #777;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #f5f6fa;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            background: #fff;
+            box-shadow: 0 0 10px rgba(225, 36, 84, 0.2);
+        }
+
+        .input-group label {
+            position: absolute;
+            top: -10px;
+            left: 12px;
+            font-size: 12px;
+            color: #223a66;
+            background: white;
+            padding: 0 5px;
+            font-weight: 500;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #223a66;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            background: #e12454;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(225, 36, 84, 0.4);
+        }
+
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .options .remember-me {
+            display: flex;
+            align-items: center;
+            color: #666;
+        }
+
+        .options .remember-me input {
+            margin-right: 8px;
+        }
+
+        .options .forgot-password a {
+            color: #e12454;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .options .forgot-password a:hover {
+            color: #223a66;
+        }
+
+        .tip,
+        .note {
+            margin-top: 25px;
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #223a66;
+            line-height: 1.5;
+        }
+
+        .password-strength {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .password-strength .bar {
+            height: 5px;
+            border-radius: 5px;
+            margin-top: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .terms {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .terms input {
+            margin-right: 8px;
+        }
+
+        .terms a {
+            color: #e12454;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .terms a:hover {
+            color: #223a66;
+        }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 25px;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .switch-form a {
+            color: #e12454;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .switch-form a:hover {
+            color: #223a66;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 400px;
+                padding: 30px;
+            }
+
+            .header h2 {
+                font-size: 26px;
+            }
+
+            .header .logo {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .input-group input {
+                padding: 12px 15px;
+                font-size: 15px;
+            }
+
+            .input-group label {
+                font-size: 11px;
+                top: -9px;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            .options,
+            .tip,
+            .note,
+            .password-strength,
+            .terms,
+            .switch-form {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+                margin: 15px;
+                padding: 25px;
+                border-radius: 15px;
+            }
+
+            .header h2 {
+                font-size: 24px;
+            }
+
+            .header p {
+                font-size: 13px;
+            }
+
+            .header .logo {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+
+            .input-group {
+                margin-bottom: 20px;
+            }
+
+            .input-group input {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            .input-group label {
+                font-size: 10px;
+                top: -8px;
+            }
+
+            .btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .options,
+            .tip,
+            .note,
+            .password-strength,
+            .terms,
+            .switch-form {
+                font-size: 12px;
+            }
+
+            .tip,
+            .note {
+                padding: 12px;
+            }
+
+            .password-strength .bar {
+                height: 4px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+        <!-- Form Đăng nhập -->
+        <div class="form-container active" id="login-form">
+            <div class="header">
+                <div class="logo">P</div>
+                <h2>Đăng Nhập</h2>
+                <p>Truy cập tài khoản của bạn</p>
+            </div>
+            <form>
+                <div class="input-group">
+                    <input type="email" required>
+                    <label>Email</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" required>
+                    <label>Mật khẩu</label>
+                </div>
+                <div class="options">
+                    <label class="remember-me">
+                        <input type="checkbox"> Ghi nhớ tôi
+                    </label>
+                    <div class="forgot-password">
+                        <a href="#" onclick="showForm('forgot-form')">Quên mật khẩu?</a>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Đăng Nhập</button>
+                <div class="tip">
+                    <strong>Mẹo về sức khỏe:</strong> Kiểm tra sức khỏe thường xuyên có thể giúp phát hiện các vấn đề
+                    sức khỏe trước khi chúng trở nên nghiêm trọng.
+                </div>
+                <div class="switch-form">
+                    Chưa có tài khoản? <a href="#" onclick="showForm('register-form')">Đăng ký ngay</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Form Đăng ký -->
+        <div class="form-container" id="register-form">
+            <div class="header">
+                <div class="logo">P</div>
+                <h2>Đăng Ký</h2>
+                <p>Tạo tài khoản mới</p>
+            </div>
+            <form id="registerForm">
+                <div class="input-group">
+                    <input type="text" required>
+                    <label>Họ và tên</label>
+                </div>
+                <div class="input-group">
+                    <input type="email" required>
+                    <label>Email</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" required>
+                    <label>Mật khẩu</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="confirmPassword" required>
+                    <label>Xác nhận mật khẩu</label>
+                </div>
+                <div class="password-strength">
+                    Độ mạnh mật khẩu: <span id="strengthText">Yếu</span>
+                    <div class="bar" id="strengthBar" style="width: 25%; background: #e12454;"></div>
+                </div>
+                <div class="terms">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">Tôi đồng ý với <a href="#">các điều khoản và điều kiện</a></label>
+                </div>
+                <button type="submit" class="btn">Đăng Ký</button>
+                <div class="note">
+                    <strong>Ghi chú:</strong> Việc tạo tài khoản giúp chúng tôi cung cấp các khuyến nghị sức khỏe được
+                    cá nhân hóa.
+                </div>
+                <div class="switch-form">
+                    Đã có tài khoản? <a href="#" onclick="showForm('login-form')">Đăng nhập</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Form Quên mật khẩu -->
+        <div class="form-container" id="forgot-form">
+            <div class="header">
+                <div class="logo">P</div>
+                <h2>Lấy Lại Mật Khẩu</h2>
+                <p>Khôi phục quyền truy cập</p>
+            </div>
+            <form>
+                <div class="input-group">
+                    <input type="email" required>
+                    <label>Email</label>
+                </div>
+                <button type="submit" class="btn">Gửi Yêu Cầu</button>
+                <div class="tip">
+                    <strong>Mẹo bảo mật:</strong> Không bao giờ chia sẻ mật khẩu của bạn với bất kỳ ai, kể cả nhân viên
+                    của chúng tôi.
+                </div>
+                <div class="switch-form">
+                    Quay lại <a href="#" onclick="showForm('login-form')">Đăng nhập</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showForm(formId) {
+            const forms = document.querySelectorAll('.form-container');
+            forms.forEach(form => {
+                form.classList.remove('active');
+                form.style.opacity = '0';
+                form.style.transform = 'translateY(20px)';
+            });
+            const targetForm = document.getElementById(formId);
+            targetForm.classList.add('active');
+            setTimeout(() => {
+                targetForm.style.opacity = '1';
+                targetForm.style.transform = 'translateY(0)';
+            }, 50);
+        }
+
+        // Password strength and confirmation
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const strengthText = document.getElementById('strengthText');
+        const strengthBar = document.getElementById('strengthBar');
+        const registerForm = document.getElementById('registerForm');
+
+        function checkPasswordStrength(pwd) {
+            let strength = 0;
+            if (pwd.length > 5) strength++;
+            if (pwd.length > 8) strength++;
+            if (/[A-Z]/.test(pwd)) strength++;
+            if (/[0-9]/.test(pwd)) strength++;
+            if (/[^A-Za-z0-9]/.test(pwd)) strength++;
+
+            switch (strength) {
+                case 0:
+                case 1:
+                    strengthText.textContent = 'Yếu';
+                    strengthBar.style.width = '25%';
+                    strengthBar.style.background = '#e12454';
+                    break;
+                case 2:
+                case 3:
+                    strengthText.textContent = 'Trung bình';
+                    strengthBar.style.width = '50%';
+                    strengthBar.style.background = '#ff9800';
+                    break;
+                case 4:
+                case 5:
+                    strengthText.textContent = 'Mạnh';
+                    strengthBar.style.width = '100%';
+                    strengthBar.style.background = '#4caf50';
+                    break;
+            }
+        }
+
+        password.addEventListener('input', () => {
+            checkPasswordStrength(password.value);
+        });
+
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (password.value !== confirmPassword.value) {
+                alert('Mật khẩu và xác nhận mật khẩu không khớp!');
+            } else if (password.value.length < 6) {
+                alert('Mật khẩu phải có ít nhất 6 ký tự!');
+            } else {
+                alert('Đăng ký thành công! (Demo)');
+            }
+        });
+
+        document.querySelectorAll('form').forEach(form => {
+            if (form.id !== 'registerForm') {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    alert('Form đã được gửi! (Demo)');
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
